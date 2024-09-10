@@ -1,19 +1,17 @@
 server:
-  port: 9080
+  port: 8090
 
 spring:
   application:
-    name: msvc-payroll
-  config:
-    import: optional:configserver:http://localhost:8888
+    name: msvc-empleado
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/payrollDb
+    url: jdbc:mysql://localhost:3306/empleadosDb
     username: root
     password: 1413odgc
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
 
@@ -23,4 +21,3 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
-

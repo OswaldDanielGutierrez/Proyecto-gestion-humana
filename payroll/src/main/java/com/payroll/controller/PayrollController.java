@@ -9,6 +9,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+
+import java.io.ByteArrayInputStream;
+
 @RestController
 @RequestMapping("/api/v1/payroll")
 public class PayrollController {
@@ -19,6 +25,20 @@ public class PayrollController {
     @GetMapping("/getPayroll")
     public ResponseEntity<PayrollResponse> getPayroll(){
         return new ResponseEntity<>(payrollService.nomina(), HttpStatus.OK);
+    }
+
+    @GetMapping("/pdf")
+    public ResponseEntity<InputStreamResource> descargarNominaPDF() {
+        ByteArrayInputStream bis = payrollService.generarNominaPDF();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "inline; filename=nomina.pdf");
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(new InputStreamResource(bis));
     }
 
 }

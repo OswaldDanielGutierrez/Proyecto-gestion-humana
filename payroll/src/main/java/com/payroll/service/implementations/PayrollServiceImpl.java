@@ -1,5 +1,7 @@
 package com.payroll.service.implementations;
 
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfPTable;
 import com.payroll.client.EmployeeClient;
 import com.payroll.client.OvertimeClient;
 import com.payroll.dto.EmployeeDTO;
@@ -11,6 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.pdf.PdfWriter;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
+
 
 @Service
 public class PayrollServiceImpl implements PayrollService {
@@ -89,5 +101,63 @@ public class PayrollServiceImpl implements PayrollService {
                 .payrollList(payrollDTOListList)
                 .build();
     }
+
+    @Override
+    public ByteArrayInputStream generarNominaPDF() {
+
+        PayrollResponse payrollResponse = nomina();
+        List<PayrollDTO> payrollDTOList = payrollResponse.getPayrollList();
+
+        // Crear un documento PDF
+        Document document = new Document(PageSize.A4.rotate()); // Formato horizontal
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        try {
+            PdfWriter.getInstance(document, out);
+            document.open();
+
+            // Crear la tabla con el número de columnas que deseas
+            PdfPTable table = new PdfPTable(10); // 10 columnas
+
+            // Añadir los encabezados de la tabla
+            table.addCell("Nombre");
+            table.addCell("Cédula");
+            table.addCell("Salario");
+            table.addCell("Horas Extras");
+            table.addCell("Subtotal");
+            table.addCell("Devengado");
+            table.addCell("Salud");
+            table.addCell("Pensión");
+            table.addCell("Deducción");
+            table.addCell("Total");
+
+            // Añadir los datos de la nómina
+            for (PayrollDTO payroll : payrollDTOList) {
+                table.addCell(payroll.getName());
+                table.addCell(payroll.getIdCard());
+                table.addCell(String.valueOf(payroll.getSalary()));
+                table.addCell(String.valueOf(payroll.getTotalOvertimeValue()));
+                table.addCell(String.valueOf(payroll.getSubTotal()));
+                table.addCell(String.valueOf(payroll.getDevengado()));
+                table.addCell(String.valueOf(payroll.getHealthContrib()));
+                table.addCell(String.valueOf(payroll.getPensionContrib()));
+                table.addCell(String.valueOf(payroll.getDeduccion()));
+                table.addCell(String.valueOf(payroll.getTotal()));
+            }
+
+            // Añadir la tabla al documento
+            document.add(table);
+
+            document.close();
+
+        } catch (DocumentException e) {
+            e.printStackTrace();
+        }
+
+        return new ByteArrayInputStream(out.toByteArray());
+    }
+
+
+
 
 }

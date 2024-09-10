@@ -1,0 +1,31 @@
+eureka:
+  client:
+    register-with-eureka: false
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: msvc-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      mvc:
+        routes:
+          - id: empleado
+            uri: http://localhost:8090
+            predicates:
+              - Path=/api/v1/employee/**
+
+          - id: overtimeWork
+            uri: http://localhost:9090
+            predicates:
+              - Path=/api/v1/overtime/**
+
+          - id: payroll
+            uri: http://localhost:9080
+            predicates:
+              - Path=/api/v1/payroll/**
